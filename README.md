@@ -9,7 +9,7 @@
 #### Deliverables
 1. Git hub repository with analysis and work
 2. Jupyter Notebook detailing analytical process and decisions
-3. Slide deck with presentation summarizing findings
+3. [Slide deck](https://www.canva.com/design/DAEhcAH6u_E/2CU4r1H2SkcqZ_KEcWUXMA/view?utm_content=DAEhcAH6u_E&utm_campaign=designshare&utm_medium=link&utm_source=sharebutton) with presentation summarizing findings
 ### Data Context and Dictionary
 - Database is made up of Zillow property data pulled from the Codeup server. It can also be found [here](https://www.kaggle.com/c/zillow-prize-1) at Kaggle
 Data Dictionary:
