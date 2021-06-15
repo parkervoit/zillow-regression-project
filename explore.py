@@ -27,7 +27,7 @@ def plot_categorical_and_continuous_vars(data_set, cat_var, con_var):
 
 def heat_corr(data_set):
     '''takes in a data_set, returns a heatmap of correlation values'''
-    return sns.heatmap(data_set.corr(), cmap='Greens', annot=True, linewidth=0.5, mask= np.triu(data_set.corr()))
+    return sns.heatmap(data_set.corr(), cmap='Blues', annot=True, linewidth=0.5, mask= np.triu(data_set.corr()))
 
 def select_kbest(X, y, stats = f_regression, k = 3):
     '''select_kbest(X, y, stats = f_regression, k = 3)
@@ -43,6 +43,8 @@ def select_kbest(X, y, stats = f_regression, k = 3):
     return print('The best features are:{}'.format(new_feat))
 
 def rfe(X,y, k = 2, rankings = False):
+    ''' takes in X_train and target
+    returns k best features using recursive feature elimination'''
     lm = LinearRegression()
     rfe = RFE(lm, k)
     X_rfe = rfe.fit_transform(X, y)
@@ -56,3 +58,18 @@ def rfe(X,y, k = 2, rankings = False):
         return rankings
     else:
         return print(f'Best features are {new_feat}')
+    
+def t_test(t_var, df, target, alpha):
+    '''
+        This method will produce a 2 tailed t test  equate the p value to the alpha to determine whether the null hypothesis can be rejected.
+    '''
+    for i in t_var:
+        t, p = stats.ttest_ind(df[i],df[target], equal_var=False)
+        print('Null Hypothesis: {} is not correlated to value '.format(i))
+        print('Alternative hypothesis:  {} is correlated to value '.format(i))
+        if p < alpha:
+            print('p value {} is less than alpha {} , we reject our null hypothesis'.format(p,alpha))
+        else:
+            print('p value {} is not less than alpha {} , we  fail to reject our null hypothesis'.format(p,alpha))
+        print('-------------------------------------')
+    
