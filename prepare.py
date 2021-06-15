@@ -1,67 +1,10 @@
+
 import pandas as pd
 import env
 import os
 from scipy import stats
 import sklearn.preprocessing
 from sklearn.model_selection import train_test_split
-
-def get_connection(db_name, username = env.username, host=env.host, password=env.password):
-    '''
-    This function makes a connection with and pulls from the CodeUp database. It 
-    takes the database name as its argument, pulls other login info from env.py.
-    Make sure you save this as a variable or it will print out your sensitive user
-    info as plain text. 
-    '''
-    return f'mysql+pymysql://{username}:{password}@{host}/{db_name}'
-    
-def missing_values_table(df):
-    '''
-    this function takes a dataframe as input and will output metrics for missing values, and the percent of that column that has missing values
-    '''
-        # Total missing values
-    mis_val = df.isnull().sum()
-        # Percentage of missing values
-    mis_val_percent = 100 * df.isnull().sum() / len(df)
-        # Make a table with the results
-    mis_val_table = pd.concat([mis_val, mis_val_percent], axis=1)
-        # Rename the columns
-    mis_val_table_ren_columns = mis_val_table.rename(columns = {0 : 'Missing Values', 1 : '% of Total Values'})
-        # Sort the table by percentage of missing descending
-    mis_val_table_ren_columns = mis_val_table_ren_columns[
-    mis_val_table_ren_columns.iloc[:,1] != 0].sort_values('% of Total Values', ascending=False).round(1)
-        # Print some summary information
-    print ("Your selected dataframe has " + str(df.shape[1]) + " columns.\n"      
-           "There are " + str(mis_val_table_ren_columns.shape[0]) +
-           "columns that have missing values.")
-        # Return the dataframe with missing information
-    return mis_val_table_ren_columns
-
-def wrangle_zillow(db_name = 'zillow', username = env.username, password = env.password, host = env.host):
-    ''' 
-    Checks for zillow.csv file and imports it if present. If absent, it will pull in bedroom bathroom counts, sq ft.
-    tax value dollar count, year built, tax amount, and fips from properties 2017 in the zillow database. Then it will drop
-    nulls and drop duplicates'''
-    filename = 'zillow.csv'
-    if os.path.isfile(filename):
-        zillow_df = pd.read_csv(filename, index_col=0)
-        return zillow_df
-    else:
-        zillow_df = pd.read_sql('''SELECT parcelid,
-                                          bedroomcnt AS bed, 
-                                          bathroomcnt AS bath, 
-                                          calculatedfinishedsquarefeet AS sqft, 
-                                          taxvaluedollarcnt AS tax_value, 
-                                          yearbuilt, 
-                                          taxamount, 
-                                          fips 
-                                    FROM properties_2017
-                                    JOIN predictions_2017 USING(parcelid)
-                                    WHERE propertylandusetypeid = 261 
-                                    AND transactiondate BETWEEN '2017-05-01' AND '2017-08-31';''', get_connection('zillow'))
-        zillow_df = zillow_df.dropna()
-        zillow_df = zillow_df.drop_duplicates()
-        zillow_df.to_csv('zillow.csv')
-        return zillow_df 
 
 def train_validate_test_split(df, seed=123):
     '''
@@ -135,7 +78,7 @@ def months_to_years(data_set):
     data_set = data_set.rename(columns={'tenure': 'tenure_month'})
     return data_set
 
-def get_dummies(df, object_cols):
+def create_dummies(df, object_cols):
     """
     This function takes in a dataframe and list of object column names,
     and creates dummy variables of each of those columns.
@@ -153,13 +96,4 @@ def get_dummies(df, object_cols):
     # via column (axis=1)
     df = pd.concat([df, dummy_df], axis=1)
 
-    return df
-
-def encode_values(df):
-    '''
-    Takes a dataframe and returns a new dataframe with encoded categorical variables
-    '''
-    label_encoder = sklearn.preprocessing.LabelEncoder()
-    for x in df.select_dtypes(include = 'category'):
-        df[x] = label_encoder.fit_transform(df[x])
     return df
